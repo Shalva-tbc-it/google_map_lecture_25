@@ -1,19 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.fragment.app.FragmentContainerView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/autocomplete_fragment"
     android:layout_width="match_parent"
-    android:padding="20dp"
-    android:layout_height="match_parent"
-    android:layout_gravity="bottom"
+    android:layout_height="20dp"
     android:gravity="bottom"
-    android:orientation="vertical"
-    tools:context=".presentation.screen.google_map.bottom_sheet.BottomSheetFragment">
-
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/autocomplete_fragment"
-        android:layout_width="match_parent"
-        android:layout_height="20dp"
-        android:gravity="bottom"
-        android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment" />
-
-</androidx.appcompat.widget.LinearLayoutCompat>
+    android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
+    tools:context=".presentation.screen.google_map.bottom_sheet.BottomSheetFragment"/>

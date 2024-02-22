@@ -13,15 +13,17 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.libraries.places.api.model.Place
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class GoogleMapFragment : BaseFragment<FragmentGoogleMapBinding>(FragmentGoogleMapBinding::inflate),
-    OnMapReadyCallback, OnPlaceSelectedListener {
+    OnMapReadyCallback, BottomSheetFragment.PlaceSearchListener {
 
+    private lateinit var bottomSheet: BottomSheetFragment
     private lateinit var googleMap: GoogleMap
+    private var marker: Marker? = null
 
 
     override fun bind() {
@@ -29,7 +31,6 @@ class GoogleMapFragment : BaseFragment<FragmentGoogleMapBinding>(FragmentGoogleM
             .findFragmentById(R.id.map) as SupportMapFragment?
 
         mapFragment?.getMapAsync(this)
-
     }
 
     override fun bindViewActionListener() {
@@ -37,14 +38,13 @@ class GoogleMapFragment : BaseFragment<FragmentGoogleMapBinding>(FragmentGoogleM
             onMyLocationButtonClick()
         }
         binding.searchBar.setOnClickListener {
-            BottomSheetFragment().show(parentFragmentManager, "Search")
+            bottomSheet = BottomSheetFragment()
+            bottomSheet.setSearchListener(this) // Set the fragment as the listener
+            bottomSheet.show(parentFragmentManager, "tag")
         }
 
     }
 
-    override fun bindObserves() {
-
-    }
 
     private fun onMyLocationButtonClick() {
 
@@ -65,16 +65,17 @@ class GoogleMapFragment : BaseFragment<FragmentGoogleMapBinding>(FragmentGoogleM
                         googleMap.animateCamera(
                             CameraUpdateFactory.newLatLngZoom(
                                 currentLatLng,
-                                15f
+                                10f
                             )
                         )
                     }
                 }
         } else {
 
-            requestPermissions(
+            onRequestPermissionsResult(
+                1,
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                LOCATION_PERMISSION_REQUEST_CODE
+                intArrayOf(LOCATION_PERMISSION_REQUEST_CODE)
             )
         }
     }
@@ -87,35 +88,14 @@ class GoogleMapFragment : BaseFragment<FragmentGoogleMapBinding>(FragmentGoogleM
         ) {
             googleMap.isMyLocationEnabled = true
         } else {
-            requestPermissions(
+            onRequestPermissionsResult(
+                1,
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                LOCATION_PERMISSION_REQUEST_CODE
+                intArrayOf(LOCATION_PERMISSION_REQUEST_CODE)
             )
         }
 
     }
-
-//    private fun getSearchLocationByName() {
-//        Places.initialize(requireContext(), "AIzaSyB5teYKnVeIDRPG0bt07UbKbrHF0OLp3JI")
-//        val autocompleteFragment =
-//            childFragmentManager.findFragmentById(R.id.autocomplete) as AutocompleteSupportFragment
-//
-//        autocompleteFragment.setPlaceFields(
-//            listOf(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG)
-//        )
-//
-//        autocompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
-//            override fun onPlaceSelected(place: Place) {
-//                place?.let {
-//                    showSelectedPlace(it)
-//                }
-//            }
-//
-//            override fun onError(status: Status) {
-//
-//            }
-//        })
-//    }
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -133,18 +113,6 @@ class GoogleMapFragment : BaseFragment<FragmentGoogleMapBinding>(FragmentGoogleM
         }
     }
 
-    fun showSelectedPlace(place: Place) {
-        val location = place.latLng
-        location?.let {
-            googleMap.addMarker(
-                MarkerOptions()
-                    .position(it)
-                    .title("Marker in ${place.name}")
-            )
-            googleMap.moveCamera(CameraUpdateFactory.newLatLng(it))
-        }
-    }
-
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
     }
@@ -154,32 +122,11 @@ class GoogleMapFragment : BaseFragment<FragmentGoogleMapBinding>(FragmentGoogleM
 
     }
 
-    override fun onPlaceSelected(place: Place) {
-        place?.let {
-            googleMap.addMarker(
-                MarkerOptions()
-                    .position(it.latLng)
-                    .title("Marker in ${place.name}")
-            )
-            googleMap.moveCamera(CameraUpdateFactory.newLatLng(it.latLng))
-        }
-
+    override fun placeSearch(latLng: LatLng) {
+        val markerOptions = MarkerOptions()
+            .position(latLng)
+        marker = googleMap.addMarker(markerOptions)
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10f))
     }
-
-//    override fun onPlaceSelected(place: Place) {
-//
-//        showSelectedPlace(place)
-////        val location = place.latLng
-////
-////        location?.let {
-////            val cityName = place.name
-////            googleMap.addMarker(
-////                MarkerOptions()
-////                    .position(it)
-////                    .title("Marker in $cityName")
-////            )
-////            googleMap.moveCamera(CameraUpdateFactory.newLatLng(it))
-////        }
-//    }
 
 }

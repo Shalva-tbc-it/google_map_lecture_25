@@ -28,12 +28,10 @@ abstract class BaseFragment<VB: ViewBinding>(private var inflate: Inflater<VB>) 
         super.onViewCreated(view, savedInstanceState)
         bind()
         bindViewActionListener()
-        bindObserves()
     }
 
     abstract fun bind()
     abstract fun bindViewActionListener()
-    abstract fun bindObserves()
 
     override fun onDestroyView() {
         super.onDestroyView()
